@@ -1,7 +1,16 @@
 #include "reteneitor3000.h"
 #include "ui_reteneitor3000.h"
 
-#include <QtGui>
+#include <QApplication>
+#include <QDir>
+#include <QFile>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QProgressDialog>
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
+#include <QTimer>
+#include <QTextStream>
 
 reteneitor3000::reteneitor3000(QWidget *parent) :
     QMainWindow(parent),
@@ -11,23 +20,18 @@ reteneitor3000::reteneitor3000(QWidget *parent) :
   extensionSalida = ".ogg";
   nombreSalida = "Sin_titulo";
   nombreDirectorio = QDir::homePath();
+  dialogoProgreso = nullptr;
 
 
   /*Validador*/
-  QRegExp re("[A-z0-9_]+");
-  QRegExpValidator *validador = new QRegExpValidator( re, 0 );
-
-  /*Progressdialog*/
-  dialogoProgreso.setCancelButton(0);
-  dialogoProgreso.setMinimum(0);
-  dialogoProgreso.setMaximum(100);
-  dialogoProgreso.setWindowModality(Qt::WindowModal);
-  dialogoProgreso.setBackgroundRole(QPalette::Midlight);
-  dialogoProgreso.setWindowTitle("Trabajando");
+  QRegularExpression re("[A-z0-9_]+");
+  QRegularExpressionValidator *validador = new QRegularExpressionValidator(re, this);
 
   /*Inicializando UI*/
   ui->setupUi(this);
   this->setFixedSize(this->width(), this->height());
+  
+  /*Progressdialog*/
   ui->directorioSalidaLineEdit->setText(QDir::homePath());
   ui->nombreSalidaLineEdit->setText(nombreSalida);
   ui->nombreSalidaLineEdit->setValidator(validador);
@@ -43,6 +47,7 @@ reteneitor3000::reteneitor3000(QWidget *parent) :
 
 reteneitor3000::~reteneitor3000()
 {
+  delete dialogoProgreso;
   delete ui;
 }
 
@@ -92,40 +97,47 @@ void reteneitor3000::on_goBoton_clicked()
     if(!ui->texto->toPlainText().isEmpty()){
       t = new QTimer(this);
       t->start(0);
-      dialogoProgreso.show();
 
-      dialogoProgreso.setLabelText("Creando texto");
-      dialogoProgreso.setValue(10);
+      dialogoProgreso = new QProgressDialog(this);
+      dialogoProgreso->setMinimum(0);
+      dialogoProgreso->setAutoClose(false);
+      dialogoProgreso->setMaximum(100);
+      dialogoProgreso->setWindowModality(Qt::WindowModal);
+      dialogoProgreso->setBackgroundRole(QPalette::Midlight);
+      dialogoProgreso->setWindowTitle("Trabajando");
+      dialogoProgreso->show();
+
+      dialogoProgreso->setLabelText("Creando texto");
+      dialogoProgreso->setValue(10);
       QApplication::processEvents();
       crearTexto();
 
-      dialogoProgreso.setLabelText("Convirtiendo texto a voz");
-      dialogoProgreso.setValue(20);
+      dialogoProgreso->setLabelText("Convirtiendo texto a voz");
+      dialogoProgreso->setValue(20);
       QApplication::processEvents();
       textoAvoz();
 
-      dialogoProgreso.setLabelText("Normalizando salida");
-      dialogoProgreso.setValue(30);
+      dialogoProgreso->setLabelText("Normalizando salida");
+      dialogoProgreso->setValue(30);
       QApplication::processEvents();
       normalizarSalida();
 
-      dialogoProgreso.setLabelText("Mezclando las pistas");
-      dialogoProgreso.setValue(55);
+      dialogoProgreso->setLabelText("Mezclando las pistas");
+      dialogoProgreso->setValue(55);
       QApplication::processEvents();
       mesclarPistas();
 
-      dialogoProgreso.setLabelText("Convirtiendo pista, paciencia");
-      dialogoProgreso.setValue(80);
+      dialogoProgreso->setLabelText("Convirtiendo pista, paciencia");
+      dialogoProgreso->setValue(80);
       QApplication::processEvents();
       convertir();
 
-      dialogoProgreso.setLabelText("Listo");
-      dialogoProgreso.setValue(100);
+      dialogoProgreso->setLabelText("Archivo creado!");
+      dialogoProgreso->setCancelButtonText("Aceptar");
+      dialogoProgreso->setValue(100);
       QApplication::processEvents();
 
-      dialogoProgreso.close();
       t->stop();
-
     }
     else
       error("Debe escribir texto");
@@ -150,19 +162,19 @@ void reteneitor3000::crearTexto(){
 void reteneitor3000::textoAvoz(){
   comando = "cat /tmp/reteneitor3000|iconv -f utf-8 -t iso-8859-1|text2wave -eval \"(voice_el_diphone)\" -scale 5.0 -o /tmp/salida.wav";
   qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
-  system(comando.toLatin1());
+  system(comando.toUtf8());
 }
 
 void reteneitor3000::normalizarSalida(){
   comando = " sox --norm /tmp/salida.wav -b 16 /tmp/salidaMejorada.wav rate 44100 dither -s";
   qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
-  system(comando.toLatin1());
+  system(comando.toUtf8());
 }
 
 void reteneitor3000::mesclarPistas(){
   comando = "sox -m "+ui->nombreArchivo->text().toUtf8().replace(" ", "\\ ")+" /tmp/salidaMejorada.wav /tmp/"+nombreSalida+".wav";
   qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
-  system(comando.toLatin1());
+  system(comando.toUtf8());
 
 }
 

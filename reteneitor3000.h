@@ -2,7 +2,16 @@
 #define RETENEITOR3000_H
 
 #include <QMainWindow>
-#include <QtGui>
+#include <QProgressDialog>
+#include <QTimer>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QDir>
+#include <QFile>
+#include <QTextStream>
+#include <QLineEdit>
+#include <QTextEdit>
+#include <QRegularExpression>
 
 namespace Ui {
     class reteneitor3000;
@@ -13,13 +22,13 @@ class reteneitor3000 : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit reteneitor3000(QWidget *parent = 0);
+    explicit reteneitor3000(QWidget *parent = nullptr);
     ~reteneitor3000();
 
 private:
     Ui::reteneitor3000 *ui;
     QString nombreSalida, extensionSalida, nombreDirectorio, comando, comandoConversion;
-    QProgressDialog dialogoProgreso;
+    QProgressDialog *dialogoProgreso;
     QTimer *t;
 
 private slots:

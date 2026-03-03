@@ -1,4 +1,4 @@
-#include <QtGui/QApplication>
+#include <QApplication>
 #include "reteneitor3000.h"
 
 int main(int argc, char *argv[])

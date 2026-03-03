@@ -1,9 +1,11 @@
-##Dependencies:
+## Dependencies
 
-```# apt-get install libqt4-dev festival festvox-ellpc11k sox libsox-fmt-mp3 vorbis-tools cmake```
+```
+# apt-get install qt6-base-dev qt6-base-dev-tools festival festvox-ellpc11k sox libsox-fmt-mp3 vorbis-tools cmake build-essential
+```
 
 
-##Compile:
+## Compile
 
 ```
 $ cd reteneitor3000
@@ -14,14 +16,9 @@ $ make
 ```
 
 
-##Run:
+## Run
 
 ```$ ./reteneitor3000```
-
-
-##Web-Site: 
-
-http://sgonzalez.debianchile.cl/blog/?p=213
 
 
 :)
