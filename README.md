@@ -20,5 +20,6 @@ $ make
 
 ```$ ./reteneitor3000```
 
+![https://i.imgur.com/AmGusIw.png](https://i.imgur.com/AmGusIw.png)
 
 :)
